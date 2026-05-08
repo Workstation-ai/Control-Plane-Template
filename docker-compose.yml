@@ -1,0 +1,40 @@
+name: workstation-center
+
+networks:
+  workstation-network:
+    driver: bridge
+
+services:
+  workstation-center:
+    image: ghcr.io/workstation-ai/workstationcenter:latest
+    container_name: workstation-center
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - "3001:3001"
+    volumes:
+      - "./workstation.env:/app/server/.env"
+      - "./storage:/app/server/storage"
+      - "./hotdir:/app/collector/hotdir"
+      - "./outputs:/app/collector/outputs"
+      - "./public:/app/server/public"
+      # Server code volumes — permiten hotfix sin rebuildear imagen.
+      - "./server/index.js:/app/server/index.js"
+      - "./server/utils/boot/MetaGenerator.js:/app/server/utils/boot/MetaGenerator.js"
+    env_file:
+      - workstation.env
+    networks:
+      - workstation-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: workstation-center --interval 3600 --cleanup
+    networks:
+      - workstation-network
