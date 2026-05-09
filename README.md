@@ -1,37 +1,45 @@
-# Workstation Center
+# Workstation Control Plane
 
-> Transformar AnythingLLM (MIT) en **Workstation Center**, una plataforma B2B white-label de Agentes AI para empresas.
+> A production-ready template for building and deploying AI-powered applications.
 
-Workstation Center es un producto B2B que ofrece **soluciones de Agentes AI para empresas**. Basado en AnythingLLM (MIT), lo extendemos con arquitectura multi-tenencia, branding white-label, y capacidades enterprise — todo corriendo on-premise o en nube privada.
+This is a modular, enterprise-ready control plane template for deploying AI applications with built-in support for:
+
+- **Multi-service architecture** (server, frontend, collector)
+- **Docker & Docker Compose** for containerization
+- **Persistent storage** for data and uploads
+- **Document processing** and embeddings pipeline
+- **Development tools** for local development
+
+Designed to be **reusable** — clone, customize, and deploy your own AI app.
 
 ---
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
 ```
-workstation-center/
-├── server/           # Backend Node.js (API, base de datos, agentes)
-├── frontend/         # Frontend React (interfaz de usuario)
-├── collector/        # Procesamiento de documentos y embeddings
-├── docker/           # Configuración Docker
-├── extras/           # Herramientas adicionales (translator)
-└── .dev/             # Scripts de desarrollo y setup
+workstation-control-plane/
+├── server/           # Backend API (Node.js)
+├── frontend/         # User interface (React)
+├── collector/        # Document processing & embeddings
+├── docker/           # Docker configuration
+├── extras/           # Additional tools
+└── .dev/             # Development scripts & tools
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerrequisitos
+### Prerequisites
 
 - Node.js 18+
 - Yarn
-- Docker (para producción)
+- Docker (for production)
 
-### Desarrollo Local
+### Local Development
 
 ```bash
-# Instalar dependencias
+# Install dependencies
 cd server && yarn install
 cd ../frontend && yarn install
 cd ../collector && yarn install
@@ -45,89 +53,87 @@ cd frontend && yarn dev
 # Terminal 3: Collector
 cd collector && yarn dev
 
-# O todo junto (desde raíz):
+# Or all together (from root):
 yarn dev:all
 ```
 
-El servidor estará disponible en `http://localhost:3001`.
+Server runs at `http://localhost:3001`.
 
-### Producción con Docker
+### Production with Docker
 
 ```bash
-# Copiar variables de entorno
+# Copy environment template
 cp .env.example workstation.env
 
-# Editar workstation.env con tus configuraciones
+# Edit workstation.env with your settings
 
-# Iniciar servicios
+# Start services
 docker-compose up -d
 ```
 
 ---
 
-## 🔧 Configuración
+## 🔧 Configuration
 
-### Variables de Entorno
+### Environment Variables
 
-| Archivo | Descripción |
-|---------|-------------|
-| `.env.example` | Template de variables principal |
-| `server/.env` | Configuración del backend |
-| `frontend/.env` | Configuración del frontend |
-| `collector/.env` | Configuración del collector |
-| `docker/.env.example` | Configuración Docker |
+| File | Description |
+|------|-------------|
+| `.env.example` | Main environment template |
+| `server/.env` | Backend configuration |
+| `frontend/.env` | Frontend configuration |
+| `collector/.env` | Collector configuration |
+| `docker/.env.example` | Docker configuration |
 
-### Base de Datos
+### Database
 
-El proyecto usa SQLite con Prisma. Las migraciones se ejecutan automáticamente en startup.
+The project uses SQLite with Prisma. Migrations run automatically on startup.
 
 ---
 
-## 📦 Scripts Disponibles
+## 📦 Available Scripts
 
-En `.dev/` encontrarás:
+In `.dev/`:
 
-- `setup.sh` — Configuración inicial del servidor
-- `verify-setup.sh` — Verificación de salud del sistema
-- `engram-manager.sh` — Gestión de memoria persistente
+- `setup.sh` — Initial server setup
+- `verify-setup.sh` — Health check verification
+- `engram-manager.sh` — Persistent memory management
 
 ---
 
 ## 🐳 Docker
 
-El proyecto incluye configuración Docker para despliegue on-premise:
-
 ```bash
-# Desarrollo
+# Development
 docker-compose up
 
-# Producción
+# Production
 docker-compose -f docker-compose.yml up -d
 ```
 
 ---
 
-## 📜 Licencia
+## 📜 License
 
-Este proyecto está basado en AnythingLLM (MIT). Ver [LICENSE](LICENSE) para detalles.
-
----
-
-## 🤝 Contribuciones
-
-1. Fork el repositorio
-2. Crea una rama (`feature/tu-feature`)
-3. Commit tus cambios
-4. Push a la rama
-5. Abre un Pull Request
+See [LICENSE](LICENSE) for details.
 
 ---
 
-## 📞 Soporte
+## 🤝 Contributing
 
-- Abre un issue en GitHub
-- Únete a nuestro [Discord](https://discord.gg/workstation-center)
+1. Fork the repository
+2. Create a branch (`feature/your-feature`)
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
 ---
 
-**Made with ❤️ for AI teams who want to ship fast — securely.**
+## 📞 Support
+
+- Open an issue on GitHub
+- Join our [Discord](https://discord.gg/workstation-center)
+
+---
+
+**Built for AI teams who want to ship fast — securely.**
