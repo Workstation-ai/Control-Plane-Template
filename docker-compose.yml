@@ -1,33 +1,31 @@
-name: workstation-center
+name: ${COMPOSE_PROJECT_NAME:-my-app}
 
 networks:
-  workstation-network:
+  app-network:
     driver: bridge
 
 services:
-  workstation-center:
-    image: ghcr.io/workstation-ai/workstationcenter:latest
-    container_name: workstation-center
+  app:
+    image: ${APP_IMAGE:-ghcr.io/your-org/your-app:latest}
+    container_name: ${APP_CONTAINER_NAME:-my-app}
     restart: unless-stopped
-    cap_add:
-      - SYS_ADMIN
     ports:
-      - "3001:3001"
+      - "${APP_PORT:-3000}:${APP_PORT:-3000}"
     volumes:
-      - "./workstation.env:/app/server/.env"
-      - "./storage:/app/server/storage"
-      - "./hotdir:/app/collector/hotdir"
-      - "./outputs:/app/collector/outputs"
-      - "./public:/app/server/public"
-      # Server code volumes — permiten hotfix sin rebuildear imagen.
-      - "./server/index.js:/app/server/index.js"
-      - "./server/utils/boot/MetaGenerator.js:/app/server/utils/boot/MetaGenerator.js"
+      - "./app.env:/app/.env"
+      - "./storage:/app/storage"
+      - "./data:/app/data"
     env_file:
-      - workstation.env
+      - app.env
     networks:
-      - workstation-network
+      - app-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:${APP_PORT:-3000}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   watchtower:
     image: containrrr/watchtower
@@ -35,6 +33,6 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: workstation-center --interval 3600 --cleanup
+    command: app --interval 3600 --cleanup
     networks:
-      - workstation-network
+      - app-network

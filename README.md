@@ -2,15 +2,7 @@
 
 > A production-ready template for building and deploying AI-powered applications.
 
-This is a modular, enterprise-ready control plane template for deploying AI applications with built-in support for:
-
-- **Multi-service architecture** (server, frontend, collector)
-- **Docker & Docker Compose** for containerization
-- **Persistent storage** for data and uploads
-- **Document processing** and embeddings pipeline
-- **Development tools** for local development
-
-Designed to be **reusable** — clone, customize, and deploy your own AI app.
+A modular, enterprise-ready control plane template. Clone, customize, and deploy your own AI app.
 
 ---
 
@@ -18,58 +10,48 @@ Designed to be **reusable** — clone, customize, and deploy your own AI app.
 
 ```
 workstation-control-plane/
-├── server/           # Backend API (Node.js)
-├── frontend/         # User interface (React)
-├── collector/        # Document processing & embeddings
-├── docker/           # Docker configuration
-├── extras/           # Additional tools
-└── .dev/             # Development scripts & tools
+├── .dev/              # Development scripts
+├── docker/            # Docker configuration
+├── extras/            # Additional tools (optional)
+├── server/            # Backend API (implement your own)
+├── frontend/          # User interface (implement your own)
+├── collector/         # Document processing (implement your own)
+├── .env.example       # Environment template
+└── docker-compose.yml # Container orchestration
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-### Prerequisites
-
-- Node.js 18+
-- Yarn
-- Docker (for production)
-
-### Local Development
-
-```bash
-# Install dependencies
-cd server && yarn install
-cd ../frontend && yarn install
-cd ../collector && yarn install
-
-# Terminal 1: Backend
-cd server && yarn dev
-
-# Terminal 2: Frontend
-cd frontend && yarn dev
-
-# Terminal 3: Collector
-cd collector && yarn dev
-
-# Or all together (from root):
-yarn dev:all
-```
-
-Server runs at `http://localhost:3001`.
-
-### Production with Docker
+### 1. Configure
 
 ```bash
 # Copy environment template
-cp .env.example workstation.env
+cp .env.example .env
+```
 
-# Edit workstation.env with your settings
+Edit `.env` and set:
+- `APP_IMAGE` — Your Docker image (e.g., `ghcr.io/your-org/your-app:latest`)
+- `APP_PORT` — Your app port (default: 3000)
+- LLM provider configuration (OpenAI, Anthropic, Azure, Ollama, etc.)
 
-# Start services
+### 2. Build & Run
+
+```bash
+# Development (if you have services running locally)
+docker-compose up
+
+# Production
 docker-compose up -d
 ```
+
+### 3. Customize
+
+Implement your own:
+- `server/` — Backend API
+- `frontend/` — User interface
+- `collector/` — Document processing
 
 ---
 
@@ -77,39 +59,61 @@ docker-compose up -d
 
 ### Environment Variables
 
-| File | Description |
-|------|-------------|
-| `.env.example` | Main environment template |
-| `server/.env` | Backend configuration |
-| `frontend/.env` | Frontend configuration |
-| `collector/.env` | Collector configuration |
-| `docker/.env.example` | Docker configuration |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `APP_IMAGE` | Docker image | `ghcr.io/your-org/your-app:latest` |
+| `APP_PORT` | Exposed port | `3000` |
+| `COMPOSE_PROJECT_NAME` | Project name | `my-app` |
+| `DATABASE_URL` | Database connection | `file:./data/app.db` |
 
-### Database
+### LLM Providers
 
-The project uses SQLite with Prisma. Migrations run automatically on startup.
+Supported providers (configure in `.env`):
 
----
-
-## 📦 Available Scripts
-
-In `.dev/`:
-
-- `setup.sh` — Initial server setup
-- `verify-setup.sh` — Health check verification
-- `engram-manager.sh` — Persistent memory management
+- **OpenAI** — `LLM_PROVIDER=openai`
+- **Anthropic** — `LLM_PROVIDER=anthropic`
+- **Azure OpenAI** — `LLM_PROVIDER=azure`
+- **Ollama** — `LLM_PROVIDER=ollama`
+- **LMStudio** — `LLM_PROVIDER=lmstudio`
 
 ---
 
 ## 🐳 Docker
 
 ```bash
-# Development
-docker-compose up
+# Build and start
+docker-compose up -d
 
-# Production
-docker-compose -f docker-compose.yml up -d
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
 ```
+
+### Image Distribution
+
+To distribute your built image:
+
+```bash
+# Build
+docker build -t ghcr.io/your-org/your-app:v1.0.0 .
+
+# Push to GitHub Container Registry
+docker push ghcr.io/your-org/your-app:v1.0.0
+```
+
+Then update `APP_IMAGE` in your environment to use your image.
+
+---
+
+## 📦 Scripts
+
+In `.dev/`:
+
+- `setup.sh` — Initial server setup
+- `verify-setup.sh` — Health check
+- `engram-manager.sh` — Persistent memory (optional)
 
 ---
 
@@ -124,8 +128,7 @@ See [LICENSE](LICENSE) for details.
 1. Fork the repository
 2. Create a branch (`feature/your-feature`)
 3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+4. Push and open a Pull Request
 
 ---
 
@@ -136,4 +139,4 @@ See [LICENSE](LICENSE) for details.
 
 ---
 
-**Built for AI teams who want to ship fast — securely.**
+**Build your AI app — deploy anywhere.**
