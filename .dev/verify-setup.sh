@@ -7,7 +7,7 @@ echo "=============================================="
 
 # Verificar que estamos en el directorio correcto
 if [ ! -f "package.json" ]; then
-    echo "❌ Error: Este script debe ejecutarse desde la raíz del proyecto anything-llm"
+    echo "❌ Error: Este script debe ejecutarse desde la raíz del proyecto"
     exit 1
 fi
 

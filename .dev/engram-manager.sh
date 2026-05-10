@@ -32,9 +32,9 @@ case $ACTION in
             cat > "$BACKUP_DIR/metadata.json" << EOF
 {
   "backup_date": "$(date -Iseconds)",
-  "project": "anything-llm",
+  "project": "your-project",
   "engram_version": "$(engram --version 2>/dev/null || echo "unknown")",
-  "description": "Respaldo del historial de desarrollo de Workstation Center"
+  "description": "Respaldo del historial de desarrollo"
 }
 EOF
             
@@ -57,9 +57,9 @@ EOF
             cat > "$BACKUP_DIR/metadata.json" << EOF
 {
   "backup_date": "$(date -Iseconds)",
-  "project": "anything-llm",
+  "project": "your-project",
   "engram_version": "$(engram --version 2>/dev/null || echo "unknown")",
-  "description": "Respaldo del historial de desarrollo de Workstation Center"
+  "description": "Respaldo del historial de desarrollo"
 }
 EOF
             

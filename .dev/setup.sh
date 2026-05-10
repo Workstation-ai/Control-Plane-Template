@@ -2,12 +2,12 @@
 
 set -e
 
-echo "🚀 Configurando entorno de desarrollo para Workstation Center"
+echo "🚀 Configurando entorno de desarrollo"
 echo "=========================================================="
 
 # Verificar si estamos en el directorio correcto
 if [ ! -f "package.json" ] || [ ! -d ".engram" ]; then
-    echo "❌ Error: Este script debe ejecutarse desde la raíz del proyecto anything-llm"
+    echo "❌ Error: Este script debe ejecutarse desde la raíz del proyecto"
     exit 1
 fi
 
