@@ -32,72 +32,57 @@ runcmd:
   - ufw --force enable
 
   # -- App directory --
-  - mkdir -p /opt/workstation-center/storage /opt/workstation-center/hotdir /opt/workstation-center/outputs /opt/workstation-center/public
+  - mkdir -p /opt/my-app/storage /opt/my-app/data /opt/my-app/public
 
-  # -- Download compose file from GitHub API (private repo) --
+  # -- Download compose file from GitHub --
   - curl -s -H "Authorization: token {{GITHUB_TOKEN}}" \
       -H "Accept: application/vnd.github.raw+json" \
-      -o /opt/workstation-center/docker-compose.yml \
-      "https://api.github.com/repos/Workstation-ai/WorkstationCenter/contents/docker/docker-compose.yml"
-  # Pin to specific version (metadata action strips v prefix from tags)
-  - sed -i 's|workstationcenter:latest|workstationcenter:{{APP_VERSION}}|g' /opt/workstation-center/docker-compose.yml
+      -o /opt/my-app/docker-compose.yml \
+      "https://api.github.com/repos/{{GITHUB_ORG}}/{{REPO_NAME}}/contents/docker-compose.yml"
+  # Pin to specific version
+  - sed -i 's|ghcr.io/your-org/your-app:latest|ghcr.io/{{GITHUB_ORG}}/{{REPO_NAME}}:{{APP_VERSION}}|g' /opt/my-app/docker-compose.yml
   # Fix watchtower for Docker API v1.40+ compatibility
-  - sed -i '/^    image: containrrr\/watchtower$/a\    environment:\n      - DOCKER_API_VERSION=1.40' /opt/workstation-center/docker-compose.yml
+  - sed -i '/^    image: containrrr\/watchtower$/a\    environment:\n      - DOCKER_API_VERSION=1.40' /opt/my-app/docker-compose.yml
 
   # -- Caddyfile --
   - |
     cat > /etc/caddy/Caddyfile << CADDYEOF
     {{CLIENT_DOMAIN}} {
-        reverse_proxy localhost:3001
+        reverse_proxy localhost:{{APP_PORT}}
     }
     CADDYEOF
 
   # -- Generate secrets --
-  - cd /opt/workstation-center
+  - cd /opt/my-app
   - JWT_SECRET=$(openssl rand -hex 32)
   - AUTH_TOKEN=$(openssl rand -hex 32)
   - SIG_KEY=$(openssl rand -hex 32)
   - SIG_SALT=$(openssl rand -hex 32)
 
-  # -- Create workstation.env --
+  # -- Create app.env --
   - |
-    cat > /opt/workstation-center/workstation.env << EOF
-    SERVER_PORT=3001
-    STORAGE_DIR="/app/server/storage"
-    UID='1000'
-    GID='1000'
+    cat > /opt/my-app/app.env << EOF
+    APP_PORT={{APP_PORT}}
+    STORAGE_DIR=/app/storage
     JWT_SECRET=${JWT_SECRET}
     AUTH_TOKEN=${AUTH_TOKEN}
     SIG_KEY=${SIG_KEY}
     SIG_SALT=${SIG_SALT}
-    DISABLE_SWAGGER_DOCS="true"
+    DISABLE_SWAGGER_DOCS=true
     EOF
 
-  # -- Fix permissions (container runs as uid 1000, needs to write env + data) --
-  - chown -R 1000:1000 /opt/workstation-center/storage /opt/workstation-center/hotdir /opt/workstation-center/outputs /opt/workstation-center/public
-  - chown 1000:1000 /opt/workstation-center/workstation.env /opt/workstation-center/docker-compose.yml
+  # -- Fix permissions --
+  - chown -R 1000:1000 /opt/my-app/storage /opt/my-app/data /opt/my-app/public
+  - chown 1000:1000 /opt/my-app/app.env /opt/my-app/docker-compose.yml
 
   # -- Login to ghcr.io (needed for private images) --
   - echo "{{GITHUB_TOKEN}}" | docker login ghcr.io -u {{GITHUB_USER}} --password-stdin
 
   # -- Pull image --
-  - cd /opt/workstation-center && docker compose pull
+  - cd /opt/my-app && docker compose pull
 
-  # -- Bootstrap frontend files into ./public BEFORE starting --
-  # The volume mount ./public:/app/server/public shadows image files.
-  # If ./public is empty, the container has no frontend to serve.
-  # Extract from the image directly before the container starts.
-  - |
-    IMAGE="ghcr.io/workstation-ai/workstationcenter:{{APP_VERSION}}"
-    echo "[...] Bootstrapping frontend from ${IMAGE}..."
-    docker create --name wsc-bootstrap "${IMAGE}" 2>/dev/null
-    docker cp wsc-bootstrap:/app/server/public/. /opt/workstation-center/public/
-    docker rm wsc-bootstrap > /dev/null 2>&1
-    chown -R 1000:1000 /opt/workstation-center/public
-    echo "[OK] Frontend files bootstrapped to ./public volume"
-
-  # -- Start container (volume mount now has files) --
-  - cd /opt/workstation-center && docker compose up -d
+  # -- Start container --
+  - cd /opt/my-app && docker compose up -d
 
   # -- Start Caddy --
   - systemctl enable caddy && systemctl restart caddy
@@ -105,11 +90,11 @@ runcmd:
   # -- Health check --
   - sleep 25
   - |
-    if curl -sf http://localhost:3001/api/ping > /dev/null 2>&1; then
-      echo "[OK] Workstation Center - ONLINE"
+    if curl -sf http://localhost:{{APP_PORT}}/health > /dev/null 2>&1; then
+      echo "[OK] Application - ONLINE"
       echo "[OK] HTTPS disponible en https://{{CLIENT_DOMAIN}}"
     else
-      echo "[WARN] Workstation Center - health check FAILED. Check: docker compose logs"
+      echo "[WARN] Application - health check FAILED. Check: docker compose logs"
     fi
 
   # -- Cleanup --
