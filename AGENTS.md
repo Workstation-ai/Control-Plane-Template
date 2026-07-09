@@ -50,5 +50,4 @@ session MUST start by loading org rules, policies, and conventions.
 
 ## Repository-Specific Rules
 
-
-## Repository-Specific Rules
+Add your repo-specific rules here.
